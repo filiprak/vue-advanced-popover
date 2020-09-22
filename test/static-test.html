@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Static Test</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12/dist/vue.min.js"></script>
+    <script src="../dist/vue-popover.min.js"></script>
+
+    <style>
+        body {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="preview">
+        <v-popover></v-popover>
+    </div>
+
+    <script>
+        Vue.use(VPopover);
+        new Vue({el: '#preview'});
+
+    </script>
+</body>
+</html>
