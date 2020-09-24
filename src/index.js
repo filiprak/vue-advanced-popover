@@ -1,9 +1,12 @@
 import VPopover from './components/VPopover';
+import VPopoverActivator from './directives/VPopoverActivator';
 
 const VPopoverPlugin = {
     install(Vue, options) {
         options = options || {};
-        Vue.component(options.name || VPopover.name, VPopover);
+
+        Vue.component('VPopover', VPopover);
+        Vue.directive('popoverActivator', VPopoverActivator);
     }
 };
 
