@@ -1,42 +1,75 @@
 import Vue from 'vue';
 
-const DATA_KEY = 'v-popover';
+export const DATA_KEY = 'v-popover';
+export const INSTANCES = {};
 
+const sanitizeId = (id) => {
+    return (id || id === 0) ? String(id) : null;
+};
+
+const getState = (binding) => {
+    const state = {
+        id: null,
+        popover: null,
+    };
+    if (binding.value && typeof binding.value === 'object') {
+        state.id = sanitizeId(binding.value.id);
+    } else {
+        state.id = sanitizeId(binding.value);
+    }
+
+    if (state.id) {
+        state.popover = INSTANCES[state.id] || null;
+    }
+    return state;
+};
+
+const update = (el, binding, vnode) => {
+    const state = getState(binding, vnode);
+    const old = el[DATA_KEY];
+
+    if (old) {
+        if (state.popover !== old.popover) {
+            old.popover && old.popover.unbind(el);
+            state.popover && state.popover.bind(el);
+        }
+    } else {
+        if (state.popover) {
+            state.popover && state.popover.bind(el);
+        }
+    }
+
+    el[DATA_KEY] = state;
+};
+
+const destroy = (el, binding, vnode) => {
+    const state = el[DATA_KEY];
+    if (state.popover) {
+        state.popover.unbind(el);
+    }
+    delete el[DATA_KEY];
+};
 
 export default {
     bind(el, binding, vnode) {
-
-        const onClick = () => {
-            const data = el[DATA_KEY];
-            data.popover && data.popover.open(el);
-        };
-
-        el.addEventListener('click', onClick);
-
-        el[DATA_KEY] = {
-            popover: vnode.context.$refs[binding.value],
-            listeners: {
-                onClick: onClick,
-            },
-        };
+        update(el, binding, vnode);
     },
     inserted(el, binding, vnode) {
-        el[DATA_KEY].popover = vnode.context.$refs[binding.value];
-        if (binding.modifiers.open) {
-            el[DATA_KEY].popover.open(el);
-        }
+        vnode.context.$nextTick(() => {
+            update(el, binding, vnode);
+        });
     },
-    update(el, binding, vnode) {
-        el[DATA_KEY].popover = vnode.context.$refs[binding.value];
+    update(el, binding, vnode, old_vnode) {
+        vnode.context.$nextTick(() => {
+            update(el, binding, vnode);
+        });
     },
-    componentUpdated(el, binding, vnode) {
-        el[DATA_KEY].popover = vnode.context.$refs[binding.value];
+    componentUpdated(el, binding, vnode, old_vnode) {
+        vnode.context.$nextTick(() => {
+            update(el, binding, vnode);
+        });
     },
     unbind(el, binding, vnode) {
-        const data = el[DATA_KEY];
-        if (data.popover && data.popover.activator === el) {
-            data.popover.close();
-        }
-        el.removeEventListener('click', data.listeners.onClick);
+        destroy(el, binding, vnode);
     },
 };
