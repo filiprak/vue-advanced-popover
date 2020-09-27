@@ -1,17 +1,11 @@
 import VPopover from './components/VPopover';
-import VPopoverActivator from './directives/VPopoverActivator';
+import VPopoverDirective from './directives/VPopover';
 
-const VPopoverPlugin = {
+export default {
     install(Vue, options) {
         options = options || {};
 
         Vue.component('VPopover', VPopover);
-        Vue.directive('popoverActivator', VPopoverActivator);
+        Vue.directive('popover', VPopoverDirective);
     }
 };
-
-if (typeof window !== "undefined") {
-    window.VPopover = VPopoverPlugin;
-}
-
-export default VPopoverPlugin;

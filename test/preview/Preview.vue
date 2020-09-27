@@ -2,7 +2,7 @@
     <div class="container">
 
         <div class="list">
-            <div v-for="i in 30" class="item" v-popover-activator:[event]="{id: 0, data: i}">
+            <div v-for="i in 30" class="item" v-popover:[event]="{id: 0, data: i}">
                 Item {{ i }}
             </div>
         </div>
@@ -10,18 +10,18 @@
         <div class="list"/>
 
         <div class="list">
-            <div v-for="i in 30" class="item" v-popover-activator:[event]="0">
+            <div v-for="i in 30" class="item" v-popover:[event]="0">
                 Item {{ i }}
             </div>
         </div>
 
         <div class="list">
-            <div class="item" v-popover-activator:[event]="{id: -1}">static Item</div>
+            <div class="item" v-popover:[event]="{id: -1}">static Item</div>
             <div>
                 <label for="add">Add item</label>
                 <input id="add" type="checkbox" v-model="add">
             </div>
-            <div class="item" v-popover-activator:[event]="-1" v-if="add">static Item</div>
+            <div class="item" v-popover:[event]="-1" v-if="add">static Item</div>
             <div>
                 <label for="evt">Event type</label>
                 <select id="evt" v-model="event">

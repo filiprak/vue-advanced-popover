@@ -1,6 +1,6 @@
 <script>
-import {DATA_KEY} from "../directives/VPopoverActivator";
-import {INSTANCES} from "../directives/VPopoverActivator";
+import {DATA_KEY} from "../directives/VPopover";
+import {INSTANCES} from "../directives/VPopover";
 
 const clamp = (value, min, max) => {
     return Math.min(Math.max(value, min), max);
