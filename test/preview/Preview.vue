@@ -2,7 +2,7 @@
     <div class="container">
 
         <div class="list">
-            <div v-for="i in 30" class="item" v-popover-activator="0">
+            <div v-for="i in 30" class="item" v-popover-activator:[event]="{id: 0, data: i}">
                 Item {{ i }}
             </div>
         </div>
@@ -10,18 +10,24 @@
         <div class="list"/>
 
         <div class="list">
-            <div v-for="i in 30" class="item" v-popover-activator="0">
+            <div v-for="i in 30" class="item" v-popover-activator:[event]="0">
                 Item {{ i }}
             </div>
         </div>
 
         <div class="list">
-            <div class="item" v-popover-activator="-1">static Item</div>
+            <div class="item" v-popover-activator:[event]="{id: -1}">static Item</div>
             <div>
                 <label for="add">Add item</label>
                 <input id="add" type="checkbox" v-model="add">
             </div>
-            <div class="item" v-popover-activator="-1" v-if="add">static Item</div>
+            <div class="item" v-popover-activator:[event]="-1" v-if="add">static Item</div>
+            <div>
+                <label for="evt">Event type</label>
+                <select id="evt" v-model="event">
+                    <option v-for="evt in events" :value="evt">{{ evt }}</option>
+                </select>
+            </div>
             <div>
                 <label for="trans">Enable transition</label>
                 <input id="trans" type="checkbox" v-model="transition">
@@ -54,7 +60,12 @@
                    :align="align"
                    :offset="offset"
                    :position="position">
-            <div>
+            <template #content="{open, close, recalculate, popover, data}">
+                <h4>
+                    Item {{ data }}
+                    <button @click="recalculate()">&bot;</button>
+                    <button @click="close()">&times;</button>
+                </h4>
                 this is popover 0 <b>content</b><br>
                 this is test content<br>
                 <input type="number" min="0" v-model="num"/>
@@ -76,10 +87,10 @@
                     <label for="offset1">Offset</label>
                     <input type="number" id="offset1" v-model="offset"/>
                 </div>
-                <div class="item" v-for="i in Number(num)" v-popover-activator="-1">
+                <div class="item" v-for="i in Number(num)">
                     Nested item {{ i }}
                 </div>
-            </div>
+            </template>
         </v-popover>
 
         <v-popover id="-1"
@@ -88,12 +99,12 @@
                    :align="align"
                    :offset="offset"
                    :position="position">
-            <div>
+            <template #content="data">
                 this is popover 1 <b>content</b><br>
                 this is test content<br>
                 <input type="text"/>
                 <input type="checkbox" v-model="add"><br>
-            </div>
+            </template>
         </v-popover>
     </div>
 </template>
@@ -110,11 +121,13 @@ export default {
             popover: true,
             position: 'auto',
             align: 'center',
+            event: 'click',
             transition: true,
             offset: 5,
 
             positions: ['auto', 'top', 'bottom', 'left', 'right'],
             aligns: ['start', 'center', 'end'],
+            events: ['click', 'hover'],
             num: 2,
         };
     },
@@ -123,19 +136,21 @@ export default {
 </script>
 
 <style>
-body, html, .container {
-    width: 100%;
-    height: 100%;
+body, html {
+    width: 200vw;
+    height: 200vh;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    background-color: #121212;
-    color: #ddd;
+    background-color: #ffffff;
 }
 
 .container {
     padding: 20px;
+    width: 150vw;
+    height: 150vh;
     display: flex;
+    align-items: flex-end;
 }
 
 .list {

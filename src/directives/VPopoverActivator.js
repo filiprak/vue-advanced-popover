@@ -3,20 +3,28 @@ import Vue from 'vue';
 export const DATA_KEY = 'v-popover';
 export const INSTANCES = {};
 
-const sanitizeId = (id) => {
+const sanitizeStr = (id) => {
     return (id || id === 0) ? String(id) : null;
+};
+
+const sanitize = (value) => {
+    return (value || value === 0) ? value : null;
 };
 
 const getState = (binding) => {
     const state = {
         id: null,
+        event: 'click',
         popover: null,
+        data: null,
     };
     if (binding.value && typeof binding.value === 'object') {
-        state.id = sanitizeId(binding.value.id);
+        state.id = sanitizeStr(binding.value.id);
+        state.data = sanitize(binding.value.data);
     } else {
-        state.id = sanitizeId(binding.value);
+        state.id = sanitizeStr(binding.value);
     }
+    state.event = binding.arg || 'click';
 
     if (state.id) {
         state.popover = INSTANCES[state.id] || null;
@@ -29,13 +37,13 @@ const update = (el, binding, vnode) => {
     const old = el[DATA_KEY];
 
     if (old) {
-        if (state.popover !== old.popover) {
+        if (state.popover !== old.popover || state.event !== old.event) {
             old.popover && old.popover.unbind(el);
-            state.popover && state.popover.bind(el);
+            state.popover && state.popover.bind(el, state.event);
         }
     } else {
         if (state.popover) {
-            state.popover && state.popover.bind(el);
+            state.popover && state.popover.bind(el, state.event);
         }
     }
 

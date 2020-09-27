@@ -9,12 +9,7 @@ const clamp = (value, min, max) => {
 export default {
     name: 'VPopover',
     render(h) {
-        return h('div', {
-            class: {
-                'ik-popover': true,
-                'ik-popover--transition': this.transition
-            }
-        }, [this.renderContent(h)]);
+        return h('div', {staticClass: 'v-popover__mount'}, [this.renderContent(h)]);
     },
     props: {
         id: {
@@ -33,14 +28,30 @@ export default {
             type: [String, Number],
             default: 5,
         },
+        enter_transition_offset: {
+            type: [String, Number],
+            default: 10,
+        },
+        min_width: {},
         transition: {
             type: Boolean,
             default: true,
+        },
+        close_delay: {
+            type: [String, Number],
+            default: 400,
         },
     },
     computed: {
         id_str() {
             return this.id ? String(this.id) : null;
+        },
+        activator_data() {
+            if (this.activator && this.activator[DATA_KEY]) {
+                return this.activator[DATA_KEY].data;
+            } else {
+                return null;
+            }
         },
     },
     data() {
@@ -49,48 +60,93 @@ export default {
                 x: 0,
                 y: 0,
             },
-            opened: false,
+            visible: false,
             activator: null,
-            transition_off: false,
+            z_index: 9,
+            opacity: 0,
         };
     },
     methods: {
         renderContent(h) {
+            const children = [];
+
+            if (this.$scopedSlots.content) {
+                children.push(this.$scopedSlots.content({
+                    popover: this,
+                    open: this.open,
+                    close: this.close,
+                    recalculate: this.recalculate,
+                    data: this.activator_data,
+                }));
+            } else if (this.$slots.content) {
+                children.push(this.$slots.content);
+            }
+
+            children.push(this.$slots.default);
+
             return h('div', {
                 ref: 'content',
                 class: {
-                    'v-popover__content': true,
-                    'v-popover__content--transition': this.transition,
+                    'v-popover': true,
+                    'v-popover--transition': this.transition,
                 },
                 style: {
-                    zIndex: '9',
-                    display: this.opened ? null : 'none',
+                    zIndex: this.z_index,
+                    display: this.visible ? null : 'none',
+                    opacity: this.opacity,
                     transform: 'translate(' + this.dimensions.x + 'px, ' + this.dimensions.y + 'px)',
                 },
-            }, this.$slots.default);
+            }, children);
         },
-        bind(el) {
-            el && el.addEventListener('click', this.onActivatorClick);
+        bind(el, event) {
+            if (el) {
+                if (event === 'hover') {
+                    el.addEventListener('mouseenter', this.onActivatorMouseEnter);
+                    el.addEventListener('mouseleave', this.onActivatorMouseLeave);
+                } else {
+                    el.addEventListener('click', this.onActivatorClick);
+                }
+            }
         },
         unbind(el) {
             if (el) {
                 el.removeEventListener('click', this.onActivatorClick);
+                el.removeEventListener('mouseenter', this.onActivatorMouseEnter);
+                el.removeEventListener('mouseleave', this.onActivatorMouseLeave);
                 if (el === this.activator) {
                     this.close();
-                    this.activator = null;
                 }
             }
         },
         open(activator) {
+            this.activator = activator || this.activator || null;
+            this.alignToElement(activator, null, true);
             this.attachContent();
-            this.alignToElement(activator);
-            this.activator = activator || null;
-            setTimeout(() => {
-                this.opened = true;
-            }, 0);
+
+            const content_el = this.$refs.content;
+
+            if (activator && content_el) {
+                const data = activator[DATA_KEY];
+                if (data.event === 'hover') {
+                    content_el.addEventListener('mouseenter', this.onContentMouseEnter);
+                    content_el.addEventListener('mouseleave', this.onContentMouseLeave);
+                }
+            }
         },
         close() {
-            this.opened = false;
+            this.visible = false;
+            this.opacity = 0;
+            this.activator = null;
+
+            const content_el = this.$refs.content;
+
+            if (content_el) {
+                content_el.removeEventListener('mouseenter', this.onContentMouseEnter);
+                content_el.removeEventListener('mouseleave', this.onContentMouseLeave);
+            }
+        },
+        recalculate() {
+            this.alignToElement(this.activator);
         },
         detachContent() {
             const el = this.$refs.content;
@@ -98,7 +154,9 @@ export default {
         },
         attachContent() {
             const el = this.$refs.content;
-            el && !document.body.contains(el) && document.body.appendChild(el);
+            if (el && !document.body.contains(el)) {
+                el.childNodes.length > 0 && document.body.appendChild(el);
+            }
         },
         isInsideActivator(el) {
             let node = el;
@@ -113,12 +171,13 @@ export default {
             }
             return false;
         },
-        alignToElement(el, container_el, bias) {
+        alignToElement(el, container_el, open) {
             const content_el = this.$refs.content;
             if (el && content_el) {
                 this.preview(() => {
                     const mr = 3;
                     const offset = Number(this.offset);
+                    const s_offset = Number(this.enter_transition_offset);
                     const viewport = this.getWindowSize();
                     const a_rect = el.getBoundingClientRect();
                     const c_rect = content_el.getBoundingClientRect();
@@ -131,16 +190,16 @@ export default {
 
                     let v_pos = true;
 
-                    let x, y;
+                    let x, y, enter_x, enter_y;
 
                     switch (this.position) {
                         case 'top':
-                            x = (a_rect.left)
+                            x = (a_rect.left);
                             y = (a_rect.top - c_rect.height - offset);
                             v_pos = false;
                             break;
                         case 'bottom':
-                            x = (a_rect.left)
+                            x = (a_rect.left);
                             y = (a_rect.bottom + offset);
                             v_pos = false;
                             break;
@@ -181,10 +240,68 @@ export default {
 
                         min_y = Math.max(ct_rect.top - c_rect.height, min_y);
                         max_y = Math.min(ct_rect.bottom, max_y);
+
+                        const out_container = (a_rect.top > ct_rect.bottom || a_rect.bottom < ct_rect.top);
+                        const out_viewport = (
+                            a_rect.bottom < 0 || a_rect.top > viewport.height ||
+                            a_rect.right < 0 || a_rect.left > viewport.width
+                        );
+
+                        if (out_container || out_viewport) {
+                            this.visible && this.close();
+                        }
                     }
 
-                    this.dimensions.x = clamp(Math.floor(x), min_x + mr, max_x - mr);
-                    this.dimensions.y = clamp(Math.floor(y), min_y + mr, max_y - mr);
+                    switch (this.position) {
+                        case 'top':
+                            enter_x = x;
+                            enter_y = y + s_offset;
+                            break;
+                        case 'bottom':
+                            enter_x = x;
+                            enter_y = y - s_offset;
+                            break;
+                        case 'left':
+                            enter_x = x + s_offset;
+                            enter_y = y;
+                            break;
+                        case 'right':
+                            enter_x = x - s_offset;
+                            enter_y = y;
+                            break;
+                        default:
+                            if (l_space >= r_space) {
+                                enter_x = x + s_offset;
+                                enter_y = y;
+                            } else {
+                                enter_x = x - s_offset;
+                                enter_y = y;
+                            }
+                    }
+
+                    x = clamp(Math.floor(x), min_x + mr, max_x - mr);
+                    y = clamp(Math.floor(y), min_y + mr, max_y - mr);
+                    enter_x = clamp(Math.floor(enter_x), min_y + mr, max_y - mr);
+                    enter_y = clamp(Math.floor(enter_y), min_y + mr, max_y - mr);
+
+                    if (open) {
+                        requestAnimationFrame(() => {
+                            if (this.transition) {
+                                this.dimensions.x = enter_x;
+                                this.dimensions.y = enter_y;
+                            }
+                            this.visible = true;
+
+                            requestAnimationFrame(() => {
+                                this.dimensions.x = x;
+                                this.dimensions.y = y;
+                                this.opacity = 1;
+                            });
+                        });
+                    } else {
+                        this.dimensions.x = x;
+                        this.dimensions.y = y;
+                    }
                 });
             }
         },
@@ -213,6 +330,16 @@ export default {
                 height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight,
             }
         },
+        scheduleClose() {
+            clearTimeout(this._timeout);
+            this._timeout = setTimeout(() => {
+                this.close();
+            }, this.close_delay);
+        },
+        unscheduleClose() {
+            clearTimeout(this._timeout);
+            this._timeout = null;
+        },
 
         /* handlers */
         onWindowMousedown(event) {
@@ -227,13 +354,30 @@ export default {
             }
         },
         onWindowScroll(event) {
-            this.alignToElement(this.activator, event.target);
+            const el = event.target === document ? document.documentElement : event.target;
+            this.alignToElement(this.activator, el);
         },
         onWindowResize() {
             this.alignToElement(this.activator);
         },
         onActivatorClick(event) {
             this.open(event.currentTarget);
+        },
+        onActivatorMouseEnter(event) {
+            this.unscheduleClose();
+            this.open(event.currentTarget);
+        },
+        onActivatorMouseLeave(event) {
+            clearTimeout(this._timeout);
+            this._timeout = setTimeout(() => {
+                this.close();
+            }, this.close_delay);
+        },
+        onContentMouseEnter() {
+            this.unscheduleClose();
+        },
+        onContentMouseLeave() {
+            this.scheduleClose();
         },
     },
     created() {
@@ -259,9 +403,9 @@ export default {
         }
     },
     watch: {
-        opened(opened, old) {
-            if (opened !== old) {
-                if (opened) {
+        visible(visible, old) {
+            if (visible !== old) {
+                if (visible) {
                     this.bindWindowListeners();
                 } else {
                     this.unbindWindowListeners();
@@ -282,7 +426,14 @@ export default {
 </script>
 
 <style scoped>
-.v-popover__content {
+.v-popover__mount {
+    display: none;
+}
+
+.v-popover {
+    max-height: 100%;
+    max-width: 100%;
+    overflow: auto;
     position: fixed;
     top: 0;
     left: 0;
@@ -291,13 +442,15 @@ export default {
 
     padding: 15px;
     border-radius: 15px;
-    border: 1px solid #525252;
+    opacity: 0;
+
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .2), 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12);
 }
 
-.v-popover__content--transition {
-    -webkit-transition: -webkit-transform .4s cubic-bezier(0.4, 0.0, 0.2, 1);
-    transition: -webkit-transform .4s cubic-bezier(0.4, 0.0, 0.2, 1);
-    -webkit-transition: transform .4s cubic-bezier(0.4, 0.0, 0.2, 1);
-    transition: transform .4s cubic-bezier(0.4, 0.0, 0.2, 1);
+.v-popover--transition {
+    -webkit-transition: -webkit-transform .4s cubic-bezier(0.4, 0.0, 0.2, 1), opacity .2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: -webkit-transform .4s cubic-bezier(0.4, 0.0, 0.2, 1), opacity .2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    -webkit-transition: transform .4s cubic-bezier(0.4, 0.0, 0.2, 1), opacity .2s cubic-bezier(0.4, 0.0, 0.2, 1);
+    transition: transform .4s cubic-bezier(0.4, 0.0, 0.2, 1), opacity .2s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
 </style>
