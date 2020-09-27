@@ -26,7 +26,8 @@
   "release-it": {
     "npm": false,
     "git": {
-      "commitMessage": "Release v${version}"
+      "commitMessage": "Release v${version}",
+      "requireCleanWorkingDir": false
     },
     "hooks": {
       "before:init": [
