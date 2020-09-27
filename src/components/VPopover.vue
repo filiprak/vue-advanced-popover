@@ -32,7 +32,22 @@ export default {
             type: [String, Number],
             default: 10,
         },
-        min_width: {},
+        min_width: {
+            type: [String, Number],
+            default: null,
+        },
+        max_width: {
+            type: [String, Number],
+            default: null,
+        },
+        min_height: {
+            type: [String, Number],
+            default: null,
+        },
+        max_height: {
+            type: [String, Number],
+            default: null,
+        },
         transition: {
             type: Boolean,
             default: true,
@@ -92,6 +107,10 @@ export default {
                 },
                 style: {
                     zIndex: this.z_index,
+                    minHeight: this.min_height ? Number(this.min_height) + 'px' : null,
+                    maxHeight: this.max_height ? Number(this.max_height) + 'px' : null,
+                    minWidth: this.min_width ? Number(this.min_width) + 'px' : null,
+                    maxWidth: this.max_width ? Number(this.max_width) + 'px' : null,
                     display: this.visible ? null : 'none',
                     opacity: this.opacity,
                     transform: 'translate(' + this.dimensions.x + 'px, ' + this.dimensions.y + 'px)',
