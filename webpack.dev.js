@@ -3,18 +3,16 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const path = require('path');
 
 module.exports = {
-    entry: './test/preview/main.js',
+    entry: './docs/index.js',
     module: {
         rules: [
-            { test: /\.js$/, use: 'babel-loader' },
-            { test: /\.vue$/, use: 'vue-loader' },
-            { test: /\.css$/, use: ['style-loader', 'css-loader']},
+            {test: /\.js$/, use: 'babel-loader'},
+            {test: /\.vue$/, use: 'vue-loader'},
+            {test: /\.css$/, use: ['style-loader', 'css-loader']},
         ]
     },
     plugins: [
-        new HtmlWebpackPlugin({
-            template: './test/preview/index.html',
-        }),
+        new HtmlWebpackPlugin({template: './index.html'}),
         new VueLoaderPlugin(),
     ],
     resolve: {

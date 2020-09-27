@@ -110,10 +110,10 @@
 </template>
 
 <script>
-import VPopover from '../../src/components/VPopover';
+import VPopover from '../src/components/VPopover';
 
 export default {
-    name: 'Preview',
+    name: 'App',
     components: {VPopover},
     data() {
         return {
@@ -137,8 +137,8 @@ export default {
 
 <style>
 body, html {
-    width: 200vw;
-    height: 200vh;
+    width: 100%;
+    height: 100%;
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -147,10 +147,8 @@ body, html {
 
 .container {
     padding: 20px;
-    width: 150vw;
-    height: 150vh;
+    height: 100%;
     display: flex;
-    align-items: flex-end;
 }
 
 .list {
