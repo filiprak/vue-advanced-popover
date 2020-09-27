@@ -4,7 +4,7 @@
             <div class="container">
                 <v-card class="list">
                     <div v-for="i in 30" class="item" v-popover:[event]="{id: 0, data: i}">
-                        Item {{ i }}
+                        Item n = {{ i }}
                     </div>
                 </v-card>
 

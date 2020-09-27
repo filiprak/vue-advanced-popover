@@ -31,7 +31,7 @@ module.exports = [
     },
     {
         entry: {
-            'docs': './src/index.js',
+            'docs': './docs/src/index.js',
         },
         module: {
             rules: [
