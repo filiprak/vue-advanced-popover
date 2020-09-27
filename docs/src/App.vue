@@ -113,7 +113,7 @@
 </template>
 
 <script>
-import VPopover from '../src/components/VPopover';
+import VPopover from '../../src/components/VPopover';
 
 export default {
     name: 'App',

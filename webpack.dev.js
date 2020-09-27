@@ -4,7 +4,7 @@ const VueLoaderPlugin = require('vue-loader/lib/plugin');
 const path = require('path');
 
 module.exports = {
-    entry: './docs/index.js',
+    entry: './docs/src/index.js',
     module: {
         rules: [
             {test: /\.js$/, use: 'babel-loader'},
@@ -14,7 +14,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new HtmlWebpackPlugin({template: './index.html'}),
+        new HtmlWebpackPlugin({inject: true, template: './docs/src/index.html'}),
         new VueLoaderPlugin(),
         new VuetifyLoaderPlugin(),
     ],
