@@ -10,10 +10,11 @@
     "dev": "webpack-dev-server --mode development --config webpack.dev.js",
     "build": "webpack --mode production --config webpack.prod.js",
     "test": "jest",
+    "release": "release-it",
     "release:dry": "release-it --dry-run",
-    "release:minor": "npm run build && release-it minor",
-    "release:major": "npm run build && release-it major",
-    "release:patch": "npm run build && release-it major"
+    "release:minor": "release-it minor",
+    "release:major": "release-it major",
+    "release:patch": "release-it major"
   },
   "keywords": [
     "vue",
