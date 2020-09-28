@@ -310,7 +310,7 @@ export default {
 
                     x = clamp(Math.floor(x), min_x + mr, max_x - mr);
                     y = clamp(Math.floor(y), min_y + mr, max_y - mr);
-                    enter_x = clamp(Math.floor(enter_x), min_y + mr, max_y - mr);
+                    enter_x = clamp(Math.floor(enter_x), min_x + mr, max_x - mr);
                     enter_y = clamp(Math.floor(enter_y), min_y + mr, max_y - mr);
 
                     if (open) {
