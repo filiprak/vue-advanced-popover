@@ -1,6 +1,6 @@
 {
   "name": "vue-popover",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Advanced Vue.js popover component",
   "main": "index.js",
   "directories": {
@@ -14,7 +14,7 @@
     "release:dry": "release-it --dry-run",
     "release:minor": "release-it minor",
     "release:major": "release-it major",
-    "release:patch": "release-it major"
+    "release:patch": "release-it patch"
   },
   "keywords": [
     "vue",
@@ -24,7 +24,10 @@
   "author": "Filip Rak",
   "license": "MIT",
   "release-it": {
-    "npm": false,
+    "npm": {
+      "publish": false,
+      "ignoreVersion": false
+    },
     "git": {
       "commitMessage": "Release v${version}",
       "requireCleanWorkingDir": false
@@ -37,6 +40,7 @@
     }
   },
   "dependencies": {
+    "vue-router": "^3.4.5",
     "vuetify": "^2.3.10",
     "vuetify-loader": "^1.6.0"
   },

@@ -1,6 +1,6 @@
 <script>
-import {DATA_KEY} from "../directives/VPopover";
-import {INSTANCES} from "../directives/VPopover";
+import {DATA_KEY} from '../directives/VPopover';
+import {INSTANCES} from '../directives/VPopover';
 
 const clamp = (value, min, max) => {
     return Math.min(Math.max(value, min), max);
@@ -51,6 +51,14 @@ export default {
         transition: {
             type: Boolean,
             default: true,
+        },
+        no_shadow: {
+            type: Boolean,
+            default: false,
+        },
+        rectangle: {
+            type: Boolean,
+            default: false,
         },
         close_delay: {
             type: [String, Number],
@@ -104,6 +112,8 @@ export default {
                 class: {
                     'v-popover': true,
                     'v-popover--transition': this.transition,
+                    'v-popover--no-shadow': this.no_shadow,
+                    'v-popover--rect': this.rectangle,
                 },
                 style: {
                     zIndex: this.z_index,
@@ -347,7 +357,7 @@ export default {
             return {
                 width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth,
                 height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight,
-            }
+            };
         },
         scheduleClose() {
             clearTimeout(this._timeout);
@@ -441,7 +451,7 @@ export default {
             this.alignToElement(this.activator);
         },
     },
-}
+};
 </script>
 
 <style scoped>
@@ -459,11 +469,18 @@ export default {
     transform-origin: 0 0;
     background-color: inherit;
 
-    padding: 15px;
     border-radius: 15px;
     opacity: 0;
 
     box-shadow: 0 5px 5px -3px rgba(0, 0, 0, .2), 0 8px 10px 1px rgba(0, 0, 0, .14), 0 3px 14px 2px rgba(0, 0, 0, .12);
+}
+
+.v-popover--no-shadow {
+    box-shadow: none;
+}
+
+.v-popover--rect {
+    border-radius: 0;
 }
 
 .v-popover--transition {
