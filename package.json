@@ -1,6 +1,6 @@
 {
   "name": "vue-popover",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "Advanced Vue.js popover component",
   "main": "index.js",
   "directories": {
