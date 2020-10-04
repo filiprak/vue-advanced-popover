@@ -6,6 +6,8 @@ const clamp = (value, min, max) => {
     return Math.min(Math.max(value, min), max);
 };
 
+const INJECT_KEY = 'ik-popover-content';
+
 export default {
     name: 'VPopover',
     render(h) {
@@ -200,6 +202,22 @@ export default {
             }
             return false;
         },
+        isInsideNestedPopover(el) {
+            const content_el = this.$refs.content;
+            let node = el;
+
+            while (node.parentNode) {
+                if (node[INJECT_KEY] && node[INJECT_KEY] !== this) {
+                    if (node[INJECT_KEY].activator) {
+                        return content_el.contains(node[INJECT_KEY].activator);
+                    } else {
+                        return false;
+                    }
+                }
+                node = node.parentNode;
+            }
+            return false;
+        },
         alignToElement(el, container_el, open) {
             const content_el = this.$refs.content;
             if (el && content_el) {
@@ -377,7 +395,8 @@ export default {
                 if (!(event.target === this.activator ||
                     el === event.target ||
                     el.contains(event.target) ||
-                    this.isInsideActivator(event.target))) {
+                    this.isInsideActivator(event.target) ||
+                    this.isInsideNestedPopover(event.target))) {
                     this.close();
                 }
             }
@@ -418,18 +437,20 @@ export default {
         }
     },
     mounted() {
+        this.$refs.content[INJECT_KEY] = this;
         this.detachContent();
     },
     beforeDestroy() {
         this.unbindWindowListeners();
-
         const content_el = this.$refs.content;
+
         if (content_el && content_el.parentNode) {
             content_el.parentNode.removeChild(content_el);
         }
         if (this.id_str) {
             delete INSTANCES[this.id_str];
         }
+        delete this.$refs.content[INJECT_KEY];
     },
     watch: {
         visible(visible, old) {
