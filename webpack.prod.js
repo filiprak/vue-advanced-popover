@@ -6,7 +6,7 @@ const path = require('path');
 module.exports = [
     {
         entry: {
-            'vue-popover': './src/index.js',
+            'vue-advanced-popover': './src/index.js',
         },
         module: {
             rules: [
