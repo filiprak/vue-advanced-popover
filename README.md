@@ -22,7 +22,7 @@ npm install vue-advanced-popover
 or use script directly in the browser: `dist/vue-advanced-popover.min.js`
 
 #### Usage
-1. Setup
+1. Setup:
 - npm:
 ```js
 import Vue from 'vue';
@@ -32,15 +32,13 @@ Vue.use(VueAdvancedPopover);
 ```
 - directly in the browser:
 ```html
+<!-- import Vue.js at first -->
 <script src="vue-advanced-popover.min.js"></script>
-<script>
-    Vue.use(VueAdvancedPopover);
-</script>
 ```
 Vue plugin `VueAdvancedPopover` exposes global `v-popover` component and `v-popover` directive.
 
 2. Typical use:
-```
+```vue
 <button v-popover="'my-popover'">Open popover</button>
 
 <v-popover id="my-popover">
